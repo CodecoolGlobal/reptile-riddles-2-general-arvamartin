@@ -1,0 +1,6 @@
+CREATE TABLE role (
+    id BIGINT PRIMARY KEY,
+    name VARCHAR(255)
+);
+
+INSERT INTO role VALUES (1, 'ROLE_USER');

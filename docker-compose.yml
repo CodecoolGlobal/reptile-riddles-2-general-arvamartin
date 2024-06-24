@@ -1,0 +1,62 @@
+version: '4.0'
+
+services:
+  backend:
+    image: backend
+    build:
+      context: backend/
+    container_name: backend
+    restart: always
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      RT_SERVER_PORT: ${BACKEND_WEBSOCKET_PORT}
+      TIME_DIFF: 3600
+      TZ: ${TIMEZONE}
+    ports:
+      - "8080:8080"
+      - "9000:9000"
+    networks:
+      - my-shared-network
+
+  db:
+    image: db
+    build:
+      context: db/
+    container_name: db
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5000:5432"
+    networks:
+      - my-shared-network
+
+  frontend:
+    image: frontend
+    build:
+      context: frontend/
+    container_name: frontend
+    restart: always
+    environment:
+      REACT_APP_BACKEND_HOST: backend
+      REACT_APP_BACKEND_PORT: ${BACKEND_PORT}
+      REACT_APP_WEBSOCKET_PORT: ${BACKEND_WEBSOCKET_PORT}
+      TIME_DIFF: 3600000
+      TZ: ${TIMEZONE}
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+    networks:
+      - my-shared-network
+
+networks:
+  my-shared-network: { }
